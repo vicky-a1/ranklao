@@ -1,0 +1,75 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "AppAutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "MinSize": "5",
+        "MaxSize": "100",
+        "DesiredCapacity": "10",
+        "HealthCheckType": "ELB",
+        "HealthCheckGracePeriod": 300,
+        "LaunchTemplate": {
+          "LaunchTemplateId": { "Ref": "AppLaunchTemplate" },
+          "Version": { "Fn::GetAtt": ["AppLaunchTemplate", "LatestVersionNumber"] }
+        },
+        "TargetGroupARNs": [{ "Ref": "AppTargetGroup" }],
+        "MetricsCollection": [{
+          "Granularity": "1Minute",
+          "Metrics": ["GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances"]
+        }]
+      }
+    },
+    "AppScaleUpPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AutoScalingGroupName": { "Ref": "AppAutoScalingGroup" },
+        "PolicyType": "TargetTrackingScaling",
+        "TargetTrackingConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "ASGAverageCPUUtilization"
+          },
+          "TargetValue": 70.0
+        }
+      }
+    },
+    "AppScaleOutPolicy": {
+      "Type": "AWS::AutoScaling::ScalingPolicy",
+      "Properties": {
+        "AutoScalingGroupName": { "Ref": "AppAutoScalingGroup" },
+        "PolicyType": "StepScaling",
+        "AdjustmentType": "ChangeInCapacity",
+        "StepAdjustments": [{
+          "MetricIntervalLowerBound": 0,
+          "ScalingAdjustment": 10
+        }]
+      }
+    },
+    "DatabaseReadReplicaScaling": {
+      "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+      "Properties": {
+        "MaxCapacity": 15,
+        "MinCapacity": 2,
+        "ResourceId": "cluster:rankup-guide-pro-db",
+        "ScalableDimension": "rds:cluster:ReadReplicaCount",
+        "ServiceNamespace": "rds"
+      }
+    },
+    "DatabaseReadReplicaScalingPolicy": {
+      "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+      "Properties": {
+        "PolicyName": "ReadReplicaAutoScalingPolicy",
+        "PolicyType": "TargetTrackingScaling",
+        "ScalingTargetId": { "Ref": "DatabaseReadReplicaScaling" },
+        "TargetTrackingScalingPolicyConfiguration": {
+          "PredefinedMetricSpecification": {
+            "PredefinedMetricType": "RDSReaderAverageCPUUtilization"
+          },
+          "TargetValue": 75.0,
+          "ScaleInCooldown": 300,
+          "ScaleOutCooldown": 60
+        }
+      }
+    }
+  }
+}
