@@ -4,7 +4,6 @@
  */
 
 interface EnvironmentConfig {
-  supabaseProjectId: string;
   supabaseAnonKey: string;
   supabaseUrl: string;
   razorpayKeyId: string;
@@ -26,8 +25,7 @@ class EnvironmentValidationError extends Error {
  */
 export function validateEnvironment(): EnvironmentConfig {
   const requiredVars = {
-    supabaseProjectId: import.meta.env.VITE_SUPABASE_PROJECT_ID,
-    supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+    supabaseAnonKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
     razorpayKeyId: import.meta.env.VITE_RAZORPAY_KEY_ID,
     googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
@@ -59,7 +57,6 @@ export function validateEnvironment(): EnvironmentConfig {
   const appUrl = import.meta.env.VITE_APP_URL || 'http://localhost:8080';
 
   return {
-    supabaseProjectId: requiredVars.supabaseProjectId,
     supabaseAnonKey: requiredVars.supabaseAnonKey,
     supabaseUrl: requiredVars.supabaseUrl,
     razorpayKeyId: requiredVars.razorpayKeyId,

@@ -21,7 +21,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const resendApiKey = "re_819f2kYR_A59x2au8MzyybBDBuXQLgag3";
+    const resendApiKey = Deno.env.get("RESEND_API_KEY") || "re_819f2kYR_A59x2au8MzyybBDBuXQLgag3";
     const adminEmail = "admin@vikas";
 
     // Create admin dashboard link
