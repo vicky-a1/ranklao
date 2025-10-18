@@ -114,6 +114,37 @@ Create a `netlify.toml` file in your project root (optional but recommended):
 3. **Payment issues**: Check Razorpay webhook configurations
 4. **Database**: Ensure Supabase migrations are applied
 
+## Troubleshooting Common Issues
+
+### Dependency Installation Errors
+If you encounter dependency installation errors during deployment:
+
+1. **Lock File Conflicts**: Ensure you only have one lock file type:
+   - Use `package-lock.json` for npm
+   - Remove `bun.lockb` if present (Bun lock file)
+   - Remove `yarn.lock` if present (Yarn lock file)
+
+2. **Peer Dependency Conflicts**: Check for incompatible package versions:
+   - Review error logs for specific version conflicts
+   - Update or remove problematic packages
+   - Use `npm install --legacy-peer-deps` as a temporary workaround
+
+3. **Node.js Version**: Ensure your project is compatible with Netlify's Node.js version:
+   - Netlify uses Node.js v18+ by default
+   - Add `.nvmrc` file to specify Node.js version if needed
+
+### Build Errors
+- Check TypeScript compilation errors
+- Verify all imports and file paths are correct
+- Ensure environment variables are properly configured
+
+## Additional Notes
+
+- The build process will automatically run TypeScript compilation and Vite build
+- Make sure all environment variables are properly set before deployment
+- The application will be available at your Netlify domain once deployed
+- For custom domains, configure them in the Netlify dashboard under Domain settings
+
 ## Support
 
 If you encounter issues:

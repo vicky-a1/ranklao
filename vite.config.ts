@@ -21,19 +21,24 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     // Production optimizations
-    minify: 'terser',
+    minify: mode === 'production' ? 'esbuild' : false,
     sourcemap: mode === 'development',
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunk for better caching
-          vendor: ['react', 'react-dom'],
-          // UI library chunk
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select'],
-          // Supabase chunk
-          supabase: ['@supabase/supabase-js'],
-          // Query chunk
-          query: ['@tanstack/react-query'],
+        manualChunks: (id) => {
+          // Simplified chunking strategy for better memory usage
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'ui';
+            }
+            if (id.includes('@supabase')) {
+              return 'supabase';
+            }
+            return 'vendor';
+          }
         },
       },
     },
@@ -41,6 +46,9 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1000,
     // Enable CSS code splitting
     cssCodeSplit: true,
+    // Reduce memory usage
+    target: 'esnext',
+    reportCompressedSize: false,
   },
   // Enable dependency pre-bundling for better performance
   optimizeDeps: {
